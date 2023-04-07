@@ -3,7 +3,9 @@ package src;
 import src.TokenTypes.Token;
 import src.TokenTypes._String;
 import src.TokenTypes.EoF;
+import src.TokenTypes.Ignored;
 import src.TokenTypes.Number;
+import src.TokenTypes.Reserved;
 
 public class Tokenizer {
 
@@ -12,6 +14,8 @@ public class Tokenizer {
     private Token tokenTypes[] = {
             new Number(null),
             new _String(null),
+            new Reserved(null),
+            new Ignored(null),
     };
 
     Tokenizer() {
@@ -43,7 +47,7 @@ public class Tokenizer {
                 return match;
             }
         }
-
-        return null;
+        System.out.println(this.string.substring(cursor));
+        throw new Error("Unknown token.");
     }
 }

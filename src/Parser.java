@@ -3,20 +3,13 @@ package src;
 import java.util.Vector;
 
 import src.TokenTypes.EoF;
-import src.TokenTypes.Reserved;
+import src.TokenTypes.Ignored;
 import src.TokenTypes.Token;
 
 public class Parser {
     Tokenizer tokenizer;
     String string;
     Token lookahead;
-    Token ReservedTokens[] = {
-            new Reserved("DEFINE"),
-            new Reserved("LET"),
-            new Reserved("COND"),
-            new Reserved("IF"),
-            new Reserved("BEGIN")
-    };
 
     Parser() {
         this.tokenizer = new Tokenizer();
@@ -35,6 +28,8 @@ public class Parser {
         Token currentToken = null;
         do {
             currentToken = literal();
+            if (currentToken instanceof Ignored)
+                continue;
             programVector.add(currentToken);
         } while (!(currentToken instanceof EoF));
         return programVector;
@@ -50,6 +45,8 @@ public class Parser {
                 return this.consume("RESERVED_KEYWORD");
             case "IDENTIFIER":
                 return this.consume("IDENTIFIER");
+            case "IGNORED":
+                return this.consume("IGNORED");
             case "EoF":
                 return this.consume("EoF");
         }
