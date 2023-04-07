@@ -38,17 +38,18 @@ public class Parser {
     Token literal() {
         switch (this.lookahead.typeName) {
             case "NUMBER":
-                return this.consume("NUMBER");
             case "STRING":
-                return this.consume("STRING");
             case "RESERVED_KEYWORD":
-                return this.consume("RESERVED_KEYWORD");
             case "IDENTIFIER":
-                return this.consume("IDENTIFIER");
+            case "LEFTSQUAREB":
+            case "LEFTCURLYB":
+            case "LEFTPAR":
+            case "RIGHTSQUAREB":
+            case "RIGHTCURLYB":
+            case "RIGHTPAR":
             case "IGNORED":
-                return this.consume("IGNORED");
             case "EoF":
-                return this.consume("EoF");
+                return this.consume(this.lookahead.typeName);
         }
 
         throw new Error("Unexpected token.");

@@ -16,7 +16,7 @@ public class Reserved extends Token {
     @Override
     public Token match(String string) {
         for (String _string : ReservedTokens) {
-            if (string.substring(0, _string.length()).compareTo(_string) == 0) {
+            if (_string.length() <= string.length() && string.substring(0, _string.length()).compareTo(_string) == 0) {
                 return new Reserved(_string);
             }
         }

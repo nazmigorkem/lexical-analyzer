@@ -2,6 +2,7 @@ package src;
 
 import src.TokenTypes.Token;
 import src.TokenTypes._String;
+import src.TokenTypes.Bracket;
 import src.TokenTypes.EoF;
 import src.TokenTypes.Ignored;
 import src.TokenTypes.Number;
@@ -16,6 +17,7 @@ public class Tokenizer {
             new _String(null),
             new Reserved(null),
             new Ignored(null),
+            new Bracket(null, null),
     };
 
     Tokenizer() {
@@ -47,7 +49,6 @@ public class Tokenizer {
                 return match;
             }
         }
-        System.out.println(this.string.substring(cursor));
-        throw new Error("Unknown token.");
+        throw new Error("Unknown token at " + string.substring(cursor));
     }
 }
