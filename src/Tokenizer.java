@@ -1,9 +1,18 @@
 package src;
 
+import src.TokenTypes.Token;
+import src.TokenTypes._String;
+import src.TokenTypes.EoF;
+import src.TokenTypes.Number;
+
 public class Tokenizer {
 
     private String string;
     private int cursor;
+    private Token tokenTypes[] = {
+            new Number(null),
+            new _String(null),
+    };
 
     Tokenizer() {
         this.cursor = 0;
@@ -13,8 +22,8 @@ public class Tokenizer {
         this.string = string;
     }
 
-    boolean hasNextToken() {
-        return cursor < this.string.length();
+    public static boolean hasNextToken(int cursor, String string) {
+        return cursor < string.length();
     }
 
     boolean isNumber(char character) {
@@ -22,43 +31,19 @@ public class Tokenizer {
     }
 
     Token getNextToken() {
-        if (!this.hasNextToken()) {
-            return new Token("EOF", "End Of File");
+
+        if (!Tokenizer.hasNextToken(this.cursor, this.string)) {
+            return new EoF();
         }
 
-        if (this.isNumber(this.string.charAt(cursor))) {
-            String number = "";
-            while (this.hasNextToken() && this.isNumber(this.string.charAt(this.cursor))) {
-                number += this.string.charAt(this.cursor);
-                this.cursor++;
+        for (Token token : tokenTypes) {
+            Token match = token.match(this.string.substring(cursor));
+            if (match != null) {
+                this.cursor += match.value.length();
+                return match;
             }
-
-            return new Token(number, "NUMBER");
         }
 
-        if (this.string.charAt(cursor) == '"') {
-            String string = "";
-
-            while (true) {
-                string += this.string.charAt(this.cursor);
-                this.cursor++;
-
-                if (this.hasNextToken()) {
-                    if (this.string.charAt(this.cursor) != '"') {
-                        continue;
-                    } else {
-                        string += this.string.charAt(this.cursor);
-                        this.cursor++;
-                        return new Token(string, "STRING");
-                    }
-
-                } else {
-                    throw new Error("Unclosed quotes.");
-                }
-
-            }
-
-        }
         return null;
     }
 }

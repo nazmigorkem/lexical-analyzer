@@ -2,10 +2,21 @@ package src;
 
 import java.util.Vector;
 
+import src.TokenTypes.EoF;
+import src.TokenTypes.Reserved;
+import src.TokenTypes.Token;
+
 public class Parser {
     Tokenizer tokenizer;
     String string;
     Token lookahead;
+    Token ReservedTokens[] = {
+            new Reserved("DEFINE"),
+            new Reserved("LET"),
+            new Reserved("COND"),
+            new Reserved("IF"),
+            new Reserved("BEGIN")
+    };
 
     Parser() {
         this.tokenizer = new Tokenizer();
@@ -21,29 +32,29 @@ public class Parser {
 
     Vector<Token> program() {
         Vector<Token> programVector = new Vector<Token>();
-        programVector.add(literal());
-        programVector.add(literal());
-        programVector.add(literal());
+        Token currentToken = null;
+        do {
+            currentToken = literal();
+            programVector.add(currentToken);
+        } while (!(currentToken instanceof EoF));
         return programVector;
     }
 
     Token literal() {
         switch (this.lookahead.typeName) {
             case "NUMBER":
-                return this.numericLiteral();
+                return this.consume("NUMBER");
             case "STRING":
-                return this.stringLiteral();
+                return this.consume("STRING");
+            case "RESERVED_KEYWORD":
+                return this.consume("RESERVED_KEYWORD");
+            case "IDENTIFIER":
+                return this.consume("IDENTIFIER");
+            case "EoF":
+                return this.consume("EoF");
         }
 
         throw new Error("Unexpected token.");
-    }
-
-    Token numericLiteral() {
-        return this.consume("NUMBER");
-    }
-
-    Token stringLiteral() {
-        return this.consume("STRING");
     }
 
     Token consume(String tokenType) {
@@ -57,7 +68,8 @@ public class Parser {
             throw new Error("Unexpected token type. Got " + token.typeName + " Expected " + tokenType);
         }
 
-        this.lookahead = this.tokenizer.getNextToken();
+        if (!(token instanceof EoF))
+            this.lookahead = this.tokenizer.getNextToken();
 
         return token;
     }
