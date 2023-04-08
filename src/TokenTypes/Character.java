@@ -1,7 +1,5 @@
 package src.TokenTypes;
 
-import src.Tokenizer;
-
 public class Character extends Token {
     public Character(String value) {
         super(value, "CHARACTER");
