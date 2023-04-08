@@ -10,8 +10,8 @@ public class Identifier extends Token {
     @Override
     public Token match(String string) {
         int cursor = 0;
-        while (Tokenizer.hasNextToken(cursor, string) && (string.charAt(cursor) != '\n' || string.charAt(cursor) != '\t'
-                || string.charAt(cursor) != '\s')) {
+        while (Tokenizer.hasNextToken(cursor, string) && (string.charAt(cursor) != '\n' && string.charAt(cursor) != '\t'
+                && string.charAt(cursor) != '\s')) {
             cursor++;
         }
         Token result = new Identifier(string.substring(0, cursor));

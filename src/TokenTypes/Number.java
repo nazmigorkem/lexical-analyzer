@@ -1,6 +1,7 @@
 package src.TokenTypes;
 
 import src.Tokenizer;
+import src.Util;
 
 public class Number extends Token {
     public Number(String string) {
@@ -22,9 +23,8 @@ public class Number extends Token {
                 cursor++;
             }
             if (!Tokenizer.hasNextToken(cursor, string)
-                    || string.charAt(cursor) == ' '
-                    || string.charAt(cursor) == '\t'
-                    || string.charAt(cursor) == '\n')
+                    || Util.contains(string.charAt(cursor), Ignored.ignoredCharacters)
+                    || Util.contains(string.charAt(cursor), Bracket.brackets))
                 return new Number(number);
 
         }

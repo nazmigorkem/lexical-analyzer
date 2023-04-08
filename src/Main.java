@@ -1,11 +1,29 @@
 package src;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 import src.TokenTypes.Token;
 
 public class Main {
 
     public static void main(String[] args) {
-        for (Token token : new Parser().parse("42 \"asd\" DEFINE []\n\t\n\t~asdfasdfasd\n(asdfasd")) {
+        String program = "";
+        try {
+            File myObj = new File("./src/test.txt");
+            Scanner myReader = new Scanner(myObj);
+            while (myReader.hasNextLine()) {
+                String data = myReader.nextLine();
+                program += data + "\n";
+            }
+            myReader.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+        System.out.println(program);
+        for (Token token : new Parser().parse(program)) {
             System.out.println(token);
         }
     }
