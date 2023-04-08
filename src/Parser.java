@@ -47,6 +47,7 @@ public class Parser {
             case "DEFINE":
             case "LET":
             case "COND":
+            case "BOOLEAN":
             case "IF":
             case "BEGIN":
             case "RIGHTSQUAREB":

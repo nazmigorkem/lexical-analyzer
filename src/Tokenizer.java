@@ -2,6 +2,7 @@ package src;
 
 import src.TokenTypes.Token;
 import src.TokenTypes._String;
+import src.TokenTypes.Boolean;
 import src.TokenTypes.Bracket;
 import src.TokenTypes.EoF;
 import src.TokenTypes.Identifier;
@@ -19,6 +20,7 @@ public class Tokenizer {
             new Number(null),
             new _String(null),
             new Reserved(null, null),
+            new Boolean(null),
             new Ignored(null),
             new Bracket(null, null),
             new Identifier(null),
