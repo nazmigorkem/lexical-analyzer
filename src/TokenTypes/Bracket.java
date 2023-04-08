@@ -1,7 +1,7 @@
 package src.TokenTypes;
 
 public class Bracket extends Token {
-    char brackets[] = {
+    public static char brackets[] = {
             '[', '{', '(', ']', '}', ')'
     };
 

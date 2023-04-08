@@ -4,6 +4,7 @@ import src.TokenTypes.Token;
 import src.TokenTypes._String;
 import src.TokenTypes.Bracket;
 import src.TokenTypes.EoF;
+import src.TokenTypes.Identifier;
 import src.TokenTypes.Ignored;
 import src.TokenTypes.Number;
 import src.TokenTypes.Reserved;
@@ -18,6 +19,7 @@ public class Tokenizer {
             new Reserved(null),
             new Ignored(null),
             new Bracket(null, null),
+            new Identifier(null),
     };
 
     Tokenizer() {
@@ -30,10 +32,6 @@ public class Tokenizer {
 
     public static boolean hasNextToken(int cursor, String string) {
         return cursor < string.length();
-    }
-
-    boolean isNumber(char character) {
-        return character - 48 >= 0 && character - 48 <= 9;
     }
 
     Token getNextToken() {

@@ -21,7 +21,12 @@ public class Number extends Token {
                 number += string.charAt(cursor);
                 cursor++;
             }
-            return new Number(number);
+            if (!Tokenizer.hasNextToken(cursor, string)
+                    || string.charAt(cursor) == ' '
+                    || string.charAt(cursor) == '\t'
+                    || string.charAt(cursor) == '\n')
+                return new Number(number);
+
         }
         return null;
     }

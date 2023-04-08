@@ -1,12 +1,12 @@
 package src.TokenTypes;
 
 public class Reserved extends Token {
-    String ReservedTokens[] = {
-            "DEFINE",
-            "LET",
-            "COND",
-            "IF",
-            "BEGIN"
+    public static String ReservedTokens[] = {
+            "DEFINE ",
+            "LET ",
+            "COND ",
+            "IF ",
+            "BEGIN "
     };
 
     public Reserved(String value) {
