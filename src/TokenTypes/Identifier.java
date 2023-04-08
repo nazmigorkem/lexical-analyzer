@@ -15,7 +15,8 @@ public class Identifier extends Token {
             cursor++;
         }
         Token result = new Identifier(string.substring(0, cursor));
-        if (Number.isNumber(result.value.charAt(0))) {
+        if (Number.isNumber(result.value.charAt(0)) || result.value.charAt(0) == '\''
+                || result.value.charAt(0) == '\\') {
             return null;
         } else
             return result;

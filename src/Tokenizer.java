@@ -8,6 +8,7 @@ import src.TokenTypes.EoF;
 import src.TokenTypes.Identifier;
 import src.TokenTypes.Ignored;
 import src.TokenTypes.Number;
+import src.TokenTypes.Character;
 import src.TokenTypes.Reserved;
 
 public class Tokenizer {
@@ -21,6 +22,7 @@ public class Tokenizer {
             new _String(null),
             new Reserved(null, null),
             new Boolean(null),
+            new Character(null),
             new Ignored(null),
             new Bracket(null, null),
             new Identifier(null),
@@ -60,7 +62,15 @@ public class Tokenizer {
                 return match;
             }
         }
+        String errorToken = "";
+        String trimmedString = string.substring(cursor);
+        for (int i = 0; i < trimmedString.length(); i++) {
+            if (Util.contains(trimmedString.charAt(i), Ignored.ignoredCharacters))
+                break;
+            else
+                errorToken += trimmedString.charAt(i);
+        }
         throw new Error(
-                "Unknown token at" + " [" + this.line + ":" + this.cursor_of_line + "] " + string.substring(cursor));
+                "Unknown token at" + " [" + this.line + ":" + this.cursor_of_line + "] " + errorToken);
     }
 }

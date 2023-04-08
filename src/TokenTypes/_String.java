@@ -7,6 +7,7 @@ public class _String extends Token {
         super(value, "STRING");
     }
 
+    // TODO "\"" "\\" WILL BE ADDED
     @Override
     public Token match(String string) {
         int cursor = 0;
