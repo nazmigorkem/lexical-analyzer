@@ -44,6 +44,11 @@ public class Parser {
             case "LEFTSQUAREB":
             case "LEFTCURLYB":
             case "LEFTPAR":
+            case "DEFINE":
+            case "LET":
+            case "COND":
+            case "IF":
+            case "BEGIN":
             case "RIGHTSQUAREB":
             case "RIGHTCURLYB":
             case "RIGHTPAR":
@@ -51,8 +56,7 @@ public class Parser {
             case "EoF":
                 return this.consume(this.lookahead.typeName);
         }
-
-        throw new Error("Unexpected token.");
+        throw new Error("Unexpected token. " + this.lookahead.typeName);
     }
 
     Token consume(String tokenType) {
