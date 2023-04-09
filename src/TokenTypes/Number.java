@@ -44,7 +44,6 @@ public class Number extends Token {
 
             if (number == "") {
                 if (isSigned) {
-                    System.out.println(firstCharacter);
                     number += firstCharacter;
                     cursor++;
                 }
@@ -86,10 +85,20 @@ public class Number extends Token {
             number += string.charAt(cursor);
             cursor++;
         }
+        number = floatingPoint(number, string, cursor);
         return number;
     }
 
-    public void floatingPoint(String number) {
-
+    public String floatingPoint(String number, String string, int cursor) {
+        if (string.charAt(cursor) == '.' && Tokenizer.hasNextToken(cursor + 1, string)
+                && Number.isNumber(string.charAt(cursor + 1))) {
+            number += string.charAt(cursor);
+            cursor++;
+            while (Tokenizer.hasNextToken(cursor, string) && Number.isNumber(string.charAt(cursor))) {
+                number += string.charAt(cursor);
+                cursor++;
+            }
+        }
+        return number;
     }
 }
