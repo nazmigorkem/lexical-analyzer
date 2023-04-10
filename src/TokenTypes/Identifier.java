@@ -1,6 +1,7 @@
 package src.TokenTypes;
 
 import src.Tokenizer;
+import src.Util;
 
 public class Identifier extends Token {
     public Identifier(String value) {
@@ -10,8 +11,9 @@ public class Identifier extends Token {
     @Override
     public Token match(String string) {
         int cursor = 0;
-        while (Tokenizer.hasNextToken(cursor, string) && (string.charAt(cursor) != '\n' && string.charAt(cursor) != '\t'
-                && string.charAt(cursor) != '\s')) {
+        while (Tokenizer.hasNextToken(cursor, string)
+                && !(Util.contains(string.charAt(cursor), Ignored.ignoredCharacters)
+                        || Util.contains(string.charAt(cursor), Bracket.brackets))) {
             cursor++;
         }
         Token result = new Identifier(string.substring(0, cursor));
