@@ -90,10 +90,23 @@ public class Number extends Token {
     }
 
     public String floatingPoint(String number, String string, int cursor) {
-        if (string.charAt(cursor) == '.' && Tokenizer.hasNextToken(cursor + 1, string)
-                && Number.isNumber(string.charAt(cursor + 1))) {
+        boolean isNormal = string.charAt(cursor) == '.' && Tokenizer.hasNextToken(cursor + 1, string)
+                && Number.isNumber(string.charAt(cursor + 1));
+        boolean isScientific = (Tokenizer.hasNextToken(cursor + 1, string)
+                && (string.toLowerCase().charAt(cursor + 1) == 'e'
+                        && Tokenizer.hasNextToken(cursor + 2, string) && (Number.isNumber(string.charAt(cursor + 2))
+                                || string.charAt(cursor + 2) == '+' || string.charAt(cursor + 2) == '-')));
+        if (isNormal || isScientific) {
             number += string.charAt(cursor);
             cursor++;
+            if (isScientific) {
+                number += string.charAt(cursor);
+                cursor++;
+                if (string.charAt(cursor) == '+' || string.charAt(cursor) == '-') {
+                    number += string.charAt(cursor);
+                    cursor++;
+                }
+            }
             while (Tokenizer.hasNextToken(cursor, string) && Number.isNumber(string.charAt(cursor))) {
                 number += string.charAt(cursor);
                 cursor++;
