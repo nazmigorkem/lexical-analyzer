@@ -22,7 +22,6 @@ public class Main {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
-        System.out.println(program);
         for (Token token : new Parser().parse(program)) {
             System.out.println(token);
         }
