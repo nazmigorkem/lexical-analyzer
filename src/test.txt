@@ -1,1 +1,1 @@
-.12e-121 asdf
+"\"\asdfasdf" !asdf

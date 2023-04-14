@@ -42,6 +42,10 @@ public class Tokenizer {
         return cursor < string.length();
     }
 
+    public static boolean isLetter(char character) {
+        return (character - 65 >= 0 && character - 65 <= 25) || (character - 97 >= 0 && character - 97 <= 25);
+    }
+
     public static String getNextWord(int cursor, String string) {
         String result = "";
         while (Tokenizer.hasNextToken(cursor, string)

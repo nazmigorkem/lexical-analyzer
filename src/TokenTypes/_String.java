@@ -7,7 +7,6 @@ public class _String extends Token {
         super(value, "STRING");
     }
 
-    // TODO "\"" "\\" WILL BE ADDED
     @Override
     public Token match(String string) {
         int cursor = 0;
@@ -22,14 +21,22 @@ public class _String extends Token {
                         continue;
                     } else {
                         _string += string.charAt(cursor);
+                        if (string.charAt(cursor - 1) == '\\' && string.charAt(cursor) == '"') {
+                            cursor++;
+                            continue;
+                        }
+                        if (string.charAt(cursor - 1) == '\\' && string.charAt(cursor - 2) != '\\') {
+                            throw new Error("Unclosed quotes.");
+                        }
+
                         return new _String(_string);
                     }
 
                 } else {
                     throw new Error("Unclosed quotes.");
                 }
-
             }
+
         }
         return null;
     }
