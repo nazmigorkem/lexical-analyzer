@@ -42,6 +42,17 @@ public class Tokenizer {
         return cursor < string.length();
     }
 
+    public static String getNextWord(int cursor, String string) {
+        String result = "";
+        while (Tokenizer.hasNextToken(cursor, string)
+                && !(Util.contains(string.charAt(cursor), Ignored.ignoredCharacters)
+                        || Util.contains(string.charAt(cursor), Bracket.brackets))) {
+            result += string.charAt(cursor);
+            cursor++;
+        }
+        return result;
+    }
+
     Token getNextToken() {
 
         if (!Tokenizer.hasNextToken(this.cursor, this.string)) {

@@ -23,7 +23,7 @@ public class Number extends Token {
         char firstCharacter = string.charAt(0);
         boolean isSigned = firstCharacter == '+' || firstCharacter == '-';
 
-        if (Number.isNumber(firstCharacter) || ((isSigned)
+        if (Number.isNumber(firstCharacter) || ((isSigned) || firstCharacter == '.'
                 && Tokenizer.hasNextToken(cursor, string) && Number.isNumber(string.charAt(1)))) {
             number = "";
 
@@ -40,23 +40,28 @@ public class Number extends Token {
                     number = this.binary(number, string, cursor);
                     cursor += number.length() - 2;
                 }
+                if (!Tokenizer.hasNextToken(cursor, string)
+                        || Util.contains(string.charAt(cursor), Ignored.ignoredCharacters)
+                        || Util.contains(string.charAt(cursor), Bracket.brackets))
+                    return new Number(number);
             }
-
+            Number result = null;
             if (number == "") {
                 if (isSigned) {
                     number += firstCharacter;
                     cursor++;
                 }
 
-                number = this.decimal(number, string, cursor);
+                String currentWord = Tokenizer.getNextWord(cursor, string);
+                System.out.println(currentWord);
+                if ((currentWord.contains("e") || currentWord.contains("E")) && !currentWord.contains(".")) {
+                    result = this.onlyScientific(number, string, cursor);
+                } else if (currentWord.contains(".")) {
+                    result = this.mixed(number, string, cursor);
+                }
 
-                cursor += number.length() - (isSigned ? 1 : 0);
             }
-
-            if (!Tokenizer.hasNextToken(cursor, string)
-                    || Util.contains(string.charAt(cursor), Ignored.ignoredCharacters)
-                    || Util.contains(string.charAt(cursor), Bracket.brackets))
-                return new Number(number);
+            return result;
 
         }
         return null;
@@ -80,38 +85,78 @@ public class Number extends Token {
         return number;
     }
 
-    public String decimal(String number, String string, int cursor) {
+    public Number decimal(String number, String string, int cursor) {
         while (Tokenizer.hasNextToken(cursor, string) && Number.isNumber(string.charAt(cursor))) {
             number += string.charAt(cursor);
             cursor++;
         }
-        number = floatingPoint(number, string, cursor);
-        return number;
+        if (!Tokenizer.hasNextToken(cursor, string)
+                || Util.contains(string.charAt(cursor), Ignored.ignoredCharacters)
+                || Util.contains(string.charAt(cursor), Bracket.brackets))
+            return new Number(number);
+        else
+            return null;
     }
 
-    public String floatingPoint(String number, String string, int cursor) {
-        boolean isNormal = string.charAt(cursor) == '.' && Tokenizer.hasNextToken(cursor + 1, string)
-                && Number.isNumber(string.charAt(cursor + 1));
-        boolean isScientific = (Tokenizer.hasNextToken(cursor + 1, string)
-                && (string.toLowerCase().charAt(cursor + 1) == 'e'
-                        && Tokenizer.hasNextToken(cursor + 2, string) && (Number.isNumber(string.charAt(cursor + 2))
-                                || string.charAt(cursor + 2) == '+' || string.charAt(cursor + 2) == '-')));
-        if (isNormal || isScientific) {
-            number += string.charAt(cursor);
-            cursor++;
-            if (isScientific) {
+    public Number onlyScientific(String number, String string, int cursor) {
+        boolean isEFound = false;
+        while ((Tokenizer.hasNextToken(cursor, string) && (Number.isNumber(string.charAt(cursor))
+                || (string.charAt(cursor) == 'e' || string.charAt(cursor) == 'E')))
+                || ((Tokenizer.hasNextToken(cursor, string)
+                        && (string.charAt(cursor) == '+' || string.charAt(cursor) == '-')
+                        && (string.charAt(cursor - 1) == 'e' || string.charAt(cursor - 1) == 'E')))) {
+            if ((string.charAt(cursor) == 'e' || string.charAt(cursor) == 'E') && !isEFound) {
+                isEFound = true;
                 number += string.charAt(cursor);
                 cursor++;
-                if (string.charAt(cursor) == '+' || string.charAt(cursor) == '-') {
-                    number += string.charAt(cursor);
-                    cursor++;
-                }
+            } else if ((string.charAt(cursor) == 'e' || string.charAt(cursor) == 'E') && isEFound) {
+                return null;
+            }
+            number += string.charAt(cursor);
+            cursor++;
+        }
+        if (!Tokenizer.hasNextToken(cursor, string)
+                || Util.contains(string.charAt(cursor), Ignored.ignoredCharacters)
+                || Util.contains(string.charAt(cursor), Bracket.brackets))
+            return new Number(number);
+        else
+            return null;
+    }
+
+    public Number mixed(String number, String string, int cursor) {
+        boolean isDotFound = false;
+        while (Tokenizer.hasNextToken(cursor, string)
+                && (Number.isNumber(string.charAt(cursor)) || (string.charAt(cursor) == '.' && !isDotFound))) {
+            if (string.charAt(cursor) == '.') {
+                isDotFound = true;
+            }
+            number += string.charAt(cursor);
+            cursor++;
+        }
+
+        if (string.charAt(cursor - 1) != '.' && Tokenizer.hasNextToken(cursor, string)
+                && (string.charAt(cursor) == 'e' || string.charAt(cursor) == 'E')
+                && Tokenizer.hasNextToken(cursor + 1, string)
+                && (Number.isNumber(string.charAt(cursor + 1)) || string.charAt(cursor + 1) == '+'
+                        || string.charAt(cursor + 1) == '-')) {
+            number += string.charAt(cursor);
+            cursor++;
+            if (Tokenizer.hasNextToken(cursor, string)
+                    && (string.charAt(cursor) == '+' || string.charAt(cursor) == '-')) {
+                number += string.charAt(cursor);
+                cursor++;
             }
             while (Tokenizer.hasNextToken(cursor, string) && Number.isNumber(string.charAt(cursor))) {
                 number += string.charAt(cursor);
                 cursor++;
             }
         }
-        return number;
+
+        if (!Tokenizer.hasNextToken(cursor, string)
+                || Util.contains(string.charAt(cursor), Ignored.ignoredCharacters)
+                || Util.contains(string.charAt(cursor), Bracket.brackets))
+            return new Number(number);
+        else
+            return null;
     }
 }
