@@ -10,12 +10,17 @@ public class _String extends Token {
     @Override
     public Token match(String string) {
         int cursor = 0;
+        boolean isEscaped = false;
         if (string.charAt(cursor) == '"') {
             String _string = "";
 
             while (true) {
-                _string += string.charAt(cursor);
-                cursor++;
+                if (!isEscaped) {
+                    _string += string.charAt(cursor);
+                    cursor++;
+                } else {
+                    isEscaped = false;
+                }
                 if (Tokenizer.hasNextToken(cursor, string)) {
                     if (string.charAt(cursor) != '"') {
                         continue;
@@ -23,12 +28,14 @@ public class _String extends Token {
                         _string += string.charAt(cursor);
 
                         if (string.charAt(cursor - 1) == '\\' && string.charAt(cursor) == '"') {
+                            cursor++;
+                            isEscaped = true;
                             continue;
                         }
                         if (string.charAt(cursor - 1) == '\\' && string.charAt(cursor - 2) != '\\') {
                             throw new Error("Unclosed quotes after " + string);
                         }
-
+                        System.out.println(_string);
                         return new _String(_string);
                     }
 

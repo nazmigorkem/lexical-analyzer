@@ -24,6 +24,7 @@ true
 0 + 0
 if a = 0xacd then b = 0b101 finally c = "das" ~~213
 '1' b
+~ TEST
 '\'' "\""
 e123 +12
 121 +
