@@ -28,7 +28,7 @@ public class Parser {
         Token currentToken = null;
         do {
             currentToken = literal();
-            if (currentToken instanceof Ignored)
+            if (currentToken instanceof Ignored || currentToken instanceof EoF)
                 continue;
             programVector.add(currentToken);
         } while (!(currentToken instanceof EoF));
