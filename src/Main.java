@@ -11,7 +11,7 @@ public class Main {
     public static void main(String[] args) {
         String program = "";
         try {
-            File myObj = new File("./src/test.txt");
+            File myObj = new File("./src/input.txt");
             Scanner myReader = new Scanner(myObj);
             while (myReader.hasNextLine()) {
                 String data = myReader.nextLine();
