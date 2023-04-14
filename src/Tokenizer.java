@@ -74,6 +74,7 @@ public class Tokenizer {
                     this.cursor_of_line = 1;
                     this.line += match.value.toCharArray().length;
                 }
+
                 return match;
             }
         }

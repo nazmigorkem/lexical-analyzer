@@ -1,1 +1,30 @@
-"\"\asdfasdf" !asdf
+~ TEST START
++ 2 -1 - * 0.1e+3
+(define (fibonacci n)
+    (let fib ([prev 0]
+            [cur 1]
+            [i 0])
+    (if (= i n)
+        cur
+        (fib cur (+ prev cur) (+ i 1)))))
+(define b = "231\"")
+define a = 'b'
+9
+8
+a = "asd dsa" 12
+123 ~sad-"wedsa"
+selam 12
+"21"
+'1' a
+0x12FA
+0b101010111000
+true
++2
+-1221.12 + 2
+0 + 0
+if a = 0xacd then b = 0b101 finally c = "das" ~~213
+'1' b
+'\'' "\""
+e123 +12
+121 +
+~ TEST END

@@ -5,7 +5,7 @@ import src.Util;
 
 public class Number extends Token {
     char hexNumbers[] = {
-            'A', 'B', 'C', 'D', 'E', 'F'
+            'A', 'B', 'C', 'D', 'E', 'F', 'a', 'b', 'c', 'd', 'e', 'f'
     };
 
     public Number(String string) {
@@ -53,13 +53,19 @@ public class Number extends Token {
                 }
 
                 String currentWord = Tokenizer.getNextWord(cursor, string);
-                System.out.println(currentWord);
+
                 if ((currentWord.contains("e") || currentWord.contains("E")) && !currentWord.contains(".")) {
                     result = this.onlyScientific(number, string, cursor);
                 } else if (currentWord.contains(".")) {
                     result = this.mixed(number, string, cursor);
+                } else {
+                    result = this.decimal(number, string, cursor);
                 }
 
+            }
+            if (result.value.length() == 1 && (result.value.compareTo("+") == 0 || result.value.compareTo("-") == 0
+                    || result.value.compareTo(".") == 0)) {
+                return null;
             }
             return result;
 

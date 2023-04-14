@@ -21,19 +21,19 @@ public class _String extends Token {
                         continue;
                     } else {
                         _string += string.charAt(cursor);
+
                         if (string.charAt(cursor - 1) == '\\' && string.charAt(cursor) == '"') {
-                            cursor++;
                             continue;
                         }
                         if (string.charAt(cursor - 1) == '\\' && string.charAt(cursor - 2) != '\\') {
-                            throw new Error("Unclosed quotes.");
+                            throw new Error("Unclosed quotes after " + string);
                         }
 
                         return new _String(_string);
                     }
 
                 } else {
-                    throw new Error("Unclosed quotes.");
+                    throw new Error("Unclosed quotes after " + string);
                 }
             }
 
