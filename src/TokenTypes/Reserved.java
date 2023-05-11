@@ -1,7 +1,7 @@
 package src.TokenTypes;
 
 public class Reserved extends Token {
-    public static String ReservedTokens[] = {
+    public static String[] ReservedTokens = {
             "define",
             "let",
             "cond",

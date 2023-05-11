@@ -9,20 +9,20 @@ import src.TokenTypes.Token;
 public class Main {
 
     public static void main(String[] args) {
-        String program = "";
+        StringBuilder program = new StringBuilder();
         try {
             File myObj = new File("./src/input.txt");
             Scanner myReader = new Scanner(myObj);
             while (myReader.hasNextLine()) {
                 String data = myReader.nextLine();
-                program += data + "\n";
+                program.append(data).append("\n");
             }
             myReader.close();
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
-        for (Token token : new Parser().parse(program)) {
+        for (Token token : new Parser().parse(program.toString())) {
             System.out.println(token);
         }
     }

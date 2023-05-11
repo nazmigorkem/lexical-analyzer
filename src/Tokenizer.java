@@ -17,7 +17,7 @@ public class Tokenizer {
     private int cursor;
     private int cursor_of_line;
     private int line;
-    private Token tokenTypes[] = {
+    private final Token[] tokenTypes = {
             new Number(null),
             new _String(null),
             new Reserved(null, null),
@@ -47,14 +47,14 @@ public class Tokenizer {
     }
 
     public static String getNextWord(int cursor, String string) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         while (Tokenizer.hasNextToken(cursor, string)
                 && !(Util.contains(string.charAt(cursor), Ignored.ignoredCharacters)
                         || Util.contains(string.charAt(cursor), Bracket.brackets))) {
-            result += string.charAt(cursor);
+            result.append(string.charAt(cursor));
             cursor++;
         }
-        return result;
+        return result.toString();
     }
 
     Token getNextToken() {
@@ -78,13 +78,13 @@ public class Tokenizer {
                 return match;
             }
         }
-        String errorToken = "";
+        StringBuilder errorToken = new StringBuilder();
         String trimmedString = string.substring(cursor);
         for (int i = 0; i < trimmedString.length(); i++) {
             if (Util.contains(trimmedString.charAt(i), Ignored.ignoredCharacters))
                 break;
             else
-                errorToken += trimmedString.charAt(i);
+                errorToken.append(trimmedString.charAt(i));
         }
         throw new Error(
                 "Unknown token at" + " [" + this.line + ":" + this.cursor_of_line + "] " + errorToken);

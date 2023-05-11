@@ -4,7 +4,7 @@ import src.Tokenizer;
 
 public class Ignored extends Token {
 
-    public static char ignoredCharacters[] = {
+    public static char[] ignoredCharacters = {
             '\s', '\t', '\n'
     };
 

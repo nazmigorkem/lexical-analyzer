@@ -5,8 +5,8 @@ import src.Util;
 
 public class Identifier extends Token {
 
-    char signs[] = { '+', '-', '.' };
-    char canStartWith[] = { '!', '*', '/', ':', '<', '=', '>', '?' };
+    char[] signs = { '+', '-', '.' };
+    char[] canStartWith = { '!', '*', '/', ':', '<', '=', '>', '?' };
 
     public Identifier(String value) {
         super(value, "IDENTIFIER");

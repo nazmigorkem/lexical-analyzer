@@ -24,8 +24,8 @@ public class Parser {
     }
 
     Vector<Token> program() {
-        Vector<Token> programVector = new Vector<Token>();
-        Token currentToken = null;
+        Vector<Token> programVector = new Vector<>();
+        Token currentToken;
         do {
             currentToken = literal();
             if (currentToken instanceof Ignored || currentToken instanceof EoF)
@@ -65,10 +65,10 @@ public class Parser {
         Token token = this.lookahead;
 
         if (tokenType == null) {
-            throw new Error("Unexpected token type. Expected " + tokenType);
+            throw new Error("Unexpected token type.");
         }
 
-        if (tokenType != token.typeName) {
+        if (!tokenType.equals(token.typeName)) {
             throw new Error("Unexpected token type. Got " + token.typeName + " Expected " + tokenType);
         }
 

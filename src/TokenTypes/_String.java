@@ -12,20 +12,18 @@ public class _String extends Token {
         int cursor = 0;
         boolean isEscaped = false;
         if (string.charAt(cursor) == '"') {
-            String _string = "";
+            StringBuilder _string = new StringBuilder();
 
             while (true) {
                 if (!isEscaped) {
-                    _string += string.charAt(cursor);
+                    _string.append(string.charAt(cursor));
                     cursor++;
                 } else {
                     isEscaped = false;
                 }
                 if (Tokenizer.hasNextToken(cursor, string)) {
-                    if (string.charAt(cursor) != '"') {
-                        continue;
-                    } else {
-                        _string += string.charAt(cursor);
+                    if (string.charAt(cursor) == '"') {
+                        _string.append(string.charAt(cursor));
 
                         if (string.charAt(cursor - 1) == '\\' && string.charAt(cursor) == '"') {
                             cursor++;
@@ -36,7 +34,7 @@ public class _String extends Token {
                             throw new Error("Unclosed quotes after " + string);
                         }
                         System.out.println(_string);
-                        return new _String(_string);
+                        return new _String(_string.toString());
                     }
 
                 } else {

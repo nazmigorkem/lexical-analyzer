@@ -3,7 +3,7 @@ package src.TokenTypes;
 import src.Util;
 
 public class Boolean extends Token {
-    String tokens[] = {
+    String[] tokens = {
             "true", "false"
     };
 
