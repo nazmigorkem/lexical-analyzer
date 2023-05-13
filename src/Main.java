@@ -2,15 +2,18 @@ package src;
 
 import src.Exceptions.SyntaxException;
 import src.Grammer.Program;
+import src.ParseTree.Tree;
 import src.TokenTypes.Token;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         StringBuilder program = new StringBuilder();
         try {
             File myObj = new File("./src/input.txt");
@@ -29,7 +32,10 @@ public class Main {
         }
 
         try {
-            new Program().program();
+            new Program().synthesize();
+            PrintWriter out = new PrintWriter("output.txt");
+            out.write(Tree.printTree());
+            out.close();
         } catch (SyntaxException syntaxException) {
             syntaxException.printStackTrace();
             System.out.println(syntaxException.toString());

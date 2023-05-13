@@ -1,30 +1,29 @@
 package src.Grammer;
 
 import src.Exceptions.SyntaxException;
+import src.ParseTree.Tree;
+import src.ParseTree.TreeNodeValue;
 import src.SemanticResult;
 import src.Synthesizer;
 import src.TokenTypes.Token;
 
-import java.util.concurrent.Callable;
+@FunctionalInterface
+interface CheckedFunction<T, R> {
+    R apply(T t) throws SyntaxException;
+}
 
 public class Program {
 
-    private SemanticResult checkParenthesis(Callable<SemanticResult> callable) throws SyntaxException {
+    private SemanticResult checkParenthesis(int level, TreeNodeValue treeNodeValue, CheckedFunction<Integer, SemanticResult> callable) throws SyntaxException {
         if (checkTokenInvert("LEFTPAR")) {
             return new SemanticResult(false);
         }
-        Synthesizer.consumeToken();
+        Synthesizer.consumeToken(level);
 
-        try {
-            callable.call();
-        } catch (SyntaxException syntaxException) {
-            throw syntaxException;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new Error("Something went wrong.");
-        }
+        Tree.addTreeNode(level, treeNodeValue);
+        callable.apply(level);
 
-        checkTerminalAndThrow("RIGHTPAR");
+        checkTerminalAndThrow(level, "RIGHTPAR");
 
         return new SemanticResult(true);
     }
@@ -34,244 +33,261 @@ public class Program {
         return !token.typeName.equals(tokenValue);
     }
 
-    private SemanticResult checkNonTerminalAndThrow(Callable<SemanticResult> nonTerminal, String exceptionMessage) throws SyntaxException {
-        try {
-            SemanticResult argListResult = nonTerminal.call();
-            if (!argListResult.isParsed()) {
-                throw SyntaxException.NonTerminalException(exceptionMessage);
-            }
-        } catch (SyntaxException syntaxException) {
-            throw syntaxException;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new Error("Something went wrong.");
+    private SemanticResult checkNonTerminalAndThrow(int level, TreeNodeValue treeNodeValue, CheckedFunction<Integer, SemanticResult> callable, String exceptionMessage) throws SyntaxException {
+        Tree.addTreeNode(level, treeNodeValue);
+        SemanticResult argListResult = callable.apply(level);
+        if (!argListResult.isParsed()) {
+            throw SyntaxException.NonTerminalException(exceptionMessage);
         }
-
         return new SemanticResult(true);
     }
 
-    private SemanticResult checkTerminalAndThrow(String tokenValue) throws SyntaxException {
+    private SemanticResult checkNonTerminal(int level, TreeNodeValue treeNodeValue, CheckedFunction<Integer, SemanticResult> callable) throws SyntaxException {
+        int index = Tree.addTreeNode(level, treeNodeValue);
+        SemanticResult expressionResult = callable.apply(level);
+        if (!expressionResult.isParsed()) {
+            Tree.removeTreeNodesAfterIndex(index);
+        }
+
+        return expressionResult;
+    }
+
+    private SemanticResult checkTerminalAndThrow(int level, String tokenValue) throws SyntaxException {
         if (checkTokenInvert(tokenValue)) {
             throw SyntaxException.TokenException(Synthesizer.getNextToken(), tokenValue);
         }
-        Synthesizer.consumeToken();
+        Synthesizer.consumeToken(level);
         return new SemanticResult(true);
     }
 
     //////////////////////////////
 
-    public SemanticResult program() throws SyntaxException {
-        topLevelForm();
-        return new SemanticResult(true);
+    public void synthesize() throws SyntaxException {
+        checkNonTerminal(0, TreeNodeValue.Program, this::program);
     }
 
-    private SemanticResult topLevelForm() throws SyntaxException {
-        return checkParenthesis(this::secondLevelForm);
-    }
-
-    private SemanticResult secondLevelForm() throws SyntaxException {
-        SemanticResult result = definition();
-        if (result.isParsed()) {
-            return result;
+    public SemanticResult program(int level) throws SyntaxException {
+        if (Synthesizer.getNextToken().typeName.equals("EoF")) {
+            return new SemanticResult(true);
         }
-
-        return checkParenthesis(this::funCall);
+        checkNonTerminal(level + 1, TreeNodeValue.TopLevelForm, this::topLevelForm);
+        return checkNonTerminal(level + 1, TreeNodeValue.Program, this::program);
     }
 
-    private SemanticResult definition() throws SyntaxException {
+    private SemanticResult topLevelForm(int level) throws SyntaxException {
+        return checkParenthesis(level + 1, TreeNodeValue.SecondLevelForm, this::secondLevelForm);
+    }
+
+    private SemanticResult secondLevelForm(int level) throws SyntaxException {
+        checkNonTerminal(level + 1, TreeNodeValue.Definition, this::definition);
+
+        return checkParenthesis(level + 1, TreeNodeValue.FunCall, this::funCall);
+    }
+
+    private SemanticResult definition(int level) throws SyntaxException {
         if (checkTokenInvert("DEFINE")) {
             return new SemanticResult(false);
         }
-        Synthesizer.consumeToken();
+        Synthesizer.consumeToken(level + 1);
 
-        return checkNonTerminalAndThrow(this::definitionRight, "Definition is expected.");
+        return checkNonTerminalAndThrow(level + 1, TreeNodeValue.DefinitionRight, this::definitionRight, "Definition is expected.");
     }
 
-    private SemanticResult definitionRight() throws SyntaxException {
+    private SemanticResult definitionRight(int level) throws SyntaxException {
         if (!checkTokenInvert("IDENTIFIER")) {
-            Synthesizer.consumeToken();
+            Synthesizer.consumeToken(level + 1);
+            Tree.addTreeNode(level, TreeNodeValue.Token);
 
-            checkNonTerminalAndThrow(this::expression, "Expression expected.");
+            checkNonTerminalAndThrow(level + 1, TreeNodeValue.Expression, this::expression, "Expression expected.");
             return new SemanticResult(true);
         }
 
         if (checkTokenInvert("LEFTPAR")) {
             return new SemanticResult(false);
         }
-        Synthesizer.consumeToken();
+        Synthesizer.consumeToken(level + 1);
 
-        checkTerminalAndThrow("IDENTIFIER");
+        checkTerminalAndThrow(level + 1, "IDENTIFIER");
 
-        checkNonTerminalAndThrow(this::argList, "ArgList expected.");
+        checkNonTerminalAndThrow(level + 1, TreeNodeValue.ArgList, this::argList, "ArgList expected.");
 
-        checkTerminalAndThrow("RIGHTPAR");
+        checkTerminalAndThrow(level + 1, "RIGHTPAR");
 
-        return checkNonTerminalAndThrow(this::statements, "Statements expected.");
+        return checkNonTerminalAndThrow(level + 1, TreeNodeValue.Statements, this::statements, "Statements expected.");
     }
 
-    private SemanticResult argList() {
+    private SemanticResult argList(int level) {
         if (checkTokenInvert("IDENTIFIER")) {
             return new SemanticResult(true);
         }
-        Synthesizer.consumeToken();
-
-        return argList();
+        Synthesizer.consumeToken(level + 1);
+        Tree.addTreeNode(level + 1, TreeNodeValue.ArgList);
+        return argList(level + 1);
     }
 
-    private SemanticResult statements() throws SyntaxException {
-        SemanticResult expressionResult = expression();
+    private SemanticResult statements(int level) throws SyntaxException {
+        SemanticResult expressionResult = checkNonTerminal(level + 1, TreeNodeValue.Expression, this::expression);
         if (expressionResult.isParsed()) {
             return expressionResult;
         }
 
-        SemanticResult definitionResult = definition();
-        if (!definitionResult.isParsed()) {
+        SemanticResult definitionResult = checkNonTerminal(level + 1, TreeNodeValue.Definition, this::expression);
+        if (definitionResult.isParsed()) {
             return definitionResult;
         }
 
-        return checkNonTerminalAndThrow(this::statements, "Statements expected.");
+
+        return checkNonTerminalAndThrow(level + 1, TreeNodeValue.Statements, this::statements, "Statements expected.");
     }
 
-    private SemanticResult expressions() throws SyntaxException {
-        SemanticResult expressionResult = expression();
+    private SemanticResult expressions(int level) throws SyntaxException {
+        SemanticResult expressionResult = checkNonTerminal(level + 1, TreeNodeValue.Expression, this::expression);
         if (!expressionResult.isParsed()) {
             return new SemanticResult(true);
         }
 
-        return expressions();
+        return checkNonTerminal(level + 1, TreeNodeValue.Expressions, this::expressions);
     }
 
-    private SemanticResult expression() throws SyntaxException {
+    private SemanticResult expression(int level) throws SyntaxException {
         if (
                 !checkTokenInvert("IDENTIFIER") ||
                         !checkTokenInvert("NUMBER") ||
                         !checkTokenInvert("CHAR") ||
                         !checkTokenInvert("BOOLEAN") ||
                         !checkTokenInvert("STRING")) {
-            Synthesizer.consumeToken();
+            Synthesizer.consumeToken(level + 1);
             return new SemanticResult(true);
         }
 
-        return checkParenthesis(this::expr);
+        return checkParenthesis(level + 1, TreeNodeValue.Expr, this::expr);
     }
 
-    private SemanticResult expr() throws SyntaxException {
-        return new SemanticResult(letExpression().isParsed() ||
-                condExpression().isParsed() ||
-                ifExpression().isParsed() ||
-                beginExpression().isParsed() ||
-                funCall().isParsed());
+
+    private SemanticResult expr(int level) throws SyntaxException {
+        return new SemanticResult(checkNonTerminal(level + 1, TreeNodeValue.LetExpression, this::letExpression).isParsed() ||
+                checkNonTerminal(level + 1, TreeNodeValue.CondBranch, this::condExpression).isParsed() ||
+                checkNonTerminal(level + 1, TreeNodeValue.IfExpression, this::ifExpression).isParsed() ||
+                checkNonTerminal(level + 1, TreeNodeValue.LetExpression, this::letExpression).isParsed() ||
+                checkNonTerminal(level + 1, TreeNodeValue.BeginExpression, this::beginExpression).isParsed() ||
+                checkNonTerminal(level + 1, TreeNodeValue.FunCall, this::funCall).isParsed());
     }
 
-    private SemanticResult funCall() throws SyntaxException {
+    private SemanticResult funCall(int level) throws SyntaxException {
         if (checkTokenInvert("IDENTIFIER")) {
             return new SemanticResult(false);
         }
-        Synthesizer.consumeToken();
+        Synthesizer.consumeToken(level + 1);
 
-        return checkNonTerminalAndThrow(this::expressions, "Expression expected.");
+        return checkNonTerminalAndThrow(level + 1, TreeNodeValue.Expressions, this::expressions, "Expression expected.");
     }
 
-    private SemanticResult letExpression() throws SyntaxException {
+    private SemanticResult letExpression(int level) throws SyntaxException {
         if (checkTokenInvert("LET")) {
             return new SemanticResult(false);
         }
-        Synthesizer.consumeToken();
+        Synthesizer.consumeToken(level + 1);
 
-        return checkNonTerminalAndThrow(this::letExpr, "Let expression expected.");
+        return checkNonTerminalAndThrow(level + 1, TreeNodeValue.LetExpr, this::letExpr, "Let expression expected.");
     }
 
-    private SemanticResult letExpr() throws SyntaxException {
-        if (checkParenthesis(this::varDefs).isParsed()) {
-            return checkNonTerminalAndThrow(this::statements, "Statements expected.");
+    private SemanticResult letExpr(int level) throws SyntaxException {
+        if (checkParenthesis(level + 1, TreeNodeValue.VarDefs, this::varDefs).isParsed()) {
+            return checkNonTerminalAndThrow(level + 1, TreeNodeValue.Statements, this::statements, "Statements expected.");
         }
 
         if (checkTokenInvert("IDENTIFIER")) {
             return new SemanticResult(false);
         }
-        Synthesizer.consumeToken();
+        Synthesizer.consumeToken(level + 1);
 
-        if (!checkParenthesis(this::varDefs).isParsed()) {
+        if (!checkParenthesis(level + 1, TreeNodeValue.VarDefs, this::varDefs).isParsed()) {
             throw SyntaxException.TokenException(Synthesizer.getNextToken(), "(");
         }
 
-        return checkNonTerminalAndThrow(this::statements, "Statements expected.");
+        return checkNonTerminalAndThrow(level + 1, TreeNodeValue.Statements, this::statements, "Statements expected.");
     }
 
-    private SemanticResult varDefs() throws SyntaxException {
+    private SemanticResult varDefs(int level) throws SyntaxException {
         if (checkTokenInvert("LEFTPAR")) {
             return new SemanticResult(false);
         }
-        Synthesizer.consumeToken();
+        Synthesizer.consumeToken(level + 1);
 
-        checkTerminalAndThrow("IDENTIFIER");
+        checkTerminalAndThrow(level + 1, "IDENTIFIER");
 
-        checkNonTerminalAndThrow(this::expression, "Expression expected.");
+        checkNonTerminalAndThrow(level + 1, TreeNodeValue.Expression, this::expression, "Expression expected.");
 
-        checkTerminalAndThrow("RIGHTPAR");
+        checkTerminalAndThrow(level + 1, "RIGHTPAR");
 
-        // TODO WILL DO LIKE IN PDF
-        varDefs();
 
+        return checkNonTerminal(level + 1, TreeNodeValue.VarDef, this::varDef);
+    }
+
+    private SemanticResult varDef(int level) throws SyntaxException {
+        checkNonTerminal(level + 1, TreeNodeValue.VarDefs, this::varDefs);
         return new SemanticResult(true);
     }
 
-    private SemanticResult condExpression() throws SyntaxException {
+    private SemanticResult condExpression(int level) throws SyntaxException {
         if (checkTokenInvert("COND")) {
             return new SemanticResult(false);
         }
-        Synthesizer.consumeToken();
+        Synthesizer.consumeToken(level + 1);
 
-        return checkNonTerminalAndThrow(this::condBranches, "Condition body expected.");
+        return checkNonTerminalAndThrow(level + 1, TreeNodeValue.CondBranches, this::condBranches, "Condition body expected.");
     }
 
-    private SemanticResult condBranches() throws SyntaxException {
+    private SemanticResult condBranches(int level) throws SyntaxException {
         if (checkTokenInvert("LEFTPAR")) {
             return new SemanticResult(false);
         }
-        Synthesizer.consumeToken();
+        Synthesizer.consumeToken(level + 1);
 
-        checkNonTerminalAndThrow(this::expression, "Expression expected.");
-        checkNonTerminalAndThrow(this::statements, "Statements expected.");
+        checkNonTerminalAndThrow(level + 1, TreeNodeValue.Expression, this::expression, "Expression expected.");
+        checkNonTerminalAndThrow(level + 1, TreeNodeValue.Statements, this::statements, "Statements expected.");
 
-        checkTerminalAndThrow("RIGHTPAR");
+        checkTerminalAndThrow(level + 1, "RIGHTPAR");
 
-        return checkNonTerminalAndThrow(this::condBranch, "Condition branch expected.");
+        return checkNonTerminalAndThrow(level + 1, TreeNodeValue.CondBranch, this::condBranch, "Condition branch expected.");
     }
 
-    private SemanticResult condBranch() throws SyntaxException {
+    private SemanticResult condBranch(int level) throws SyntaxException {
         // TODO ASK INSTRUCTOR FOR COND BRANCH
         if (checkTokenInvert("LEFTPAR")) {
             return new SemanticResult(true);
         }
-        Synthesizer.consumeToken();
+        Synthesizer.consumeToken(level + 1);
 
-        checkNonTerminalAndThrow(this::expression, "Expression expected.");
-        checkNonTerminalAndThrow(this::statements, "Statements expected.");
+        checkNonTerminalAndThrow(level + 1, TreeNodeValue.Expression, this::expression, "Expression expected.");
+        checkNonTerminalAndThrow(level + 1, TreeNodeValue.Statements, this::statements, "Statements expected.");
 
-        return checkTerminalAndThrow("RIGHTPAR");
+        return checkTerminalAndThrow(level + 1, "RIGHTPAR");
     }
 
-    private SemanticResult ifExpression() throws SyntaxException {
+    private SemanticResult ifExpression(int level) throws SyntaxException {
         if (checkTokenInvert("IF")) {
             return new SemanticResult(false);
         }
-        Synthesizer.consumeToken();
+        Synthesizer.consumeToken(level + 1);
 
-        checkNonTerminalAndThrow(this::expression, "Expression expected.");
-        checkNonTerminalAndThrow(this::expression, "Expression expected.");
-        // TODO WILL DO LIKE IN PDF
-        expression();
+        checkNonTerminalAndThrow(level + 1, TreeNodeValue.Expression, this::expression, "Expression expected.");
+        checkNonTerminalAndThrow(level + 1, TreeNodeValue.Expression, this::expression, "Expression expected.");
+        return checkNonTerminal(level + 1, TreeNodeValue.EndExpression, this::endExpression);
+    }
+
+    private SemanticResult endExpression(int level) throws SyntaxException {
+        checkNonTerminal(level + 1, TreeNodeValue.Expression, this::expression);
         return new SemanticResult(true);
     }
 
-    private SemanticResult beginExpression() throws SyntaxException {
+    private SemanticResult beginExpression(int level) throws SyntaxException {
         if (checkTokenInvert("BEGIN")) {
             return new SemanticResult(false);
         }
-        Synthesizer.consumeToken();
+        Synthesizer.consumeToken(level + 1);
 
-        return checkNonTerminalAndThrow(this::statements, "Statements expected.");
+        return checkNonTerminalAndThrow(level + 1, TreeNodeValue.Statements, this::statements, "Statements expected.");
     }
 
 
