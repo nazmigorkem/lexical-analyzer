@@ -1,5 +1,6 @@
 package src;
 
+import java.util.Objects;
 import java.util.Vector;
 
 import src.TokenTypes.EoF;
@@ -10,29 +11,29 @@ public class Parser {
     Tokenizer tokenizer;
     String string;
     Token lookahead;
+    private static Parser instance;
+    private final Vector<Token> tokenVector = new Vector<>();
 
-    Parser() {
+    private Parser() {
         this.tokenizer = new Tokenizer();
+    }
+
+    static public Parser getInstance() {
+        return Objects.requireNonNullElseGet(instance, () -> instance = new Parser());
     }
 
     Vector<Token> parse(String string) {
         this.string = string;
         this.tokenizer.initialize(string);
         this.lookahead = this.tokenizer.getNextToken();
-
-        return this.program();
-    }
-
-    Vector<Token> program() {
-        Vector<Token> programVector = new Vector<>();
         Token currentToken;
         do {
             currentToken = literal();
             if (currentToken instanceof Ignored || currentToken instanceof EoF)
                 continue;
-            programVector.add(currentToken);
+            this.tokenVector.add(currentToken);
         } while (!(currentToken instanceof EoF));
-        return programVector;
+        return this.tokenVector;
     }
 
     Token literal() {
@@ -76,5 +77,9 @@ public class Parser {
             this.lookahead = this.tokenizer.getNextToken();
 
         return token;
+    }
+
+    public Vector<Token> getTokenVector() {
+        return tokenVector;
     }
 }

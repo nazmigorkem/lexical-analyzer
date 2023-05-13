@@ -1,10 +1,12 @@
 package src;
 
+import src.Exceptions.SyntaxException;
+import src.Grammer.Program;
+import src.TokenTypes.Token;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
-
-import src.TokenTypes.Token;
 
 public class Main {
 
@@ -22,8 +24,17 @@ public class Main {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
-        for (Token token : new Parser().parse(program.toString())) {
+        for (Token token : Parser.getInstance().parse(program.toString())) {
             System.out.println(token);
         }
+
+        try {
+            new Program().program();
+        } catch (SyntaxException syntaxException) {
+            syntaxException.printStackTrace();
+            System.out.println(syntaxException.toString());
+        }
+
+
     }
 }
