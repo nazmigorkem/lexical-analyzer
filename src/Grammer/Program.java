@@ -20,7 +20,7 @@ public class Program {
         }
         Synthesizer.consumeToken(level);
 
-        Tree.addTreeNode(level, treeNodeValue);
+        Tree.addTreeNode(level, treeNodeValue, null);
         callable.apply(level);
 
         checkTerminalAndThrow(level, "RIGHTPAR");
@@ -34,7 +34,7 @@ public class Program {
     }
 
     private SemanticResult checkNonTerminalAndThrow(int level, TreeNodeValue treeNodeValue, CheckedFunction<Integer, SemanticResult> callable, String exceptionMessage) throws SyntaxException {
-        Tree.addTreeNode(level, treeNodeValue);
+        Tree.addTreeNode(level, treeNodeValue, null);
         SemanticResult argListResult = callable.apply(level);
         if (!argListResult.isParsed()) {
             throw SyntaxException.NonTerminalException(exceptionMessage);
@@ -43,7 +43,7 @@ public class Program {
     }
 
     private SemanticResult checkNonTerminal(int level, TreeNodeValue treeNodeValue, CheckedFunction<Integer, SemanticResult> callable) throws SyntaxException {
-        int index = Tree.addTreeNode(level, treeNodeValue);
+        int index = Tree.addTreeNode(level, treeNodeValue, null);
         SemanticResult expressionResult = callable.apply(level);
         if (!expressionResult.isParsed()) {
             Tree.removeTreeNodesAfterIndex(index);
@@ -96,7 +96,6 @@ public class Program {
     private SemanticResult definitionRight(int level) throws SyntaxException {
         if (!checkTokenInvert("IDENTIFIER")) {
             Synthesizer.consumeToken(level + 1);
-            Tree.addTreeNode(level, TreeNodeValue.Token);
 
             checkNonTerminalAndThrow(level + 1, TreeNodeValue.Expression, this::expression, "Expression expected.");
             return new SemanticResult(true);
@@ -121,7 +120,7 @@ public class Program {
             return new SemanticResult(true);
         }
         Synthesizer.consumeToken(level + 1);
-        Tree.addTreeNode(level + 1, TreeNodeValue.ArgList);
+        Tree.addTreeNode(level + 1, TreeNodeValue.ArgList, null);
         return argList(level + 1);
     }
 

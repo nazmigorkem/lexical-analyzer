@@ -33,13 +33,14 @@ public class Main {
 
         try {
             new Program().synthesize();
-            PrintWriter out = new PrintWriter("output.txt");
-            out.write(Tree.printTree());
-            out.close();
         } catch (SyntaxException syntaxException) {
             syntaxException.printStackTrace();
             System.out.println(syntaxException.toString());
         }
+
+        PrintWriter out = new PrintWriter("output.txt");
+        out.write(Tree.printTree());
+        out.close();
 
 
     }

@@ -16,7 +16,7 @@ public class Synthesizer {
     }
 
     static public void consumeToken(int treeLevel) {
-        Tree.addTreeNode(treeLevel, TreeNodeValue.Token);
+        Tree.addTreeNode(treeLevel, TreeNodeValue.Token, Parser.getInstance().getTokenVector().get(tokenCursor));
         tokenCursor++;
     }
 

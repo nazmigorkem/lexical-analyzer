@@ -23,5 +23,4 @@ public enum TreeNodeValue {
     EndExpression,
     BeginExpression,
     Token,
-    Leaf
 }
