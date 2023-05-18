@@ -10,7 +10,9 @@ public class Synthesizer {
 
     static public Token getNextToken() {
         if (Parser.getInstance().getTokenVector().size() == tokenCursor) {
-            return new EoF();
+            EoF eof = new EoF();
+            eof.location = Parser.getInstance().getTokenVector().lastElement().location;
+            return eof;
         }
         return Parser.getInstance().getTokenVector().get(tokenCursor);
     }

@@ -252,7 +252,6 @@ public class Program {
     }
 
     private SemanticResult condBranch(int level) throws SyntaxException {
-        // TODO ASK INSTRUCTOR FOR COND BRANCH
         if (checkTokenInvert("LEFTPAR")) {
             return new SemanticResult(true);
         }
