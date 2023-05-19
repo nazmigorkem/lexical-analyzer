@@ -5,12 +5,12 @@ public class Bracket extends Token {
             '[', '{', '(', ']', '}', ')'
     };
 
-    String[] names = {
+    public String[] names = {
             "LEFTSQUAREB", "LEFTCURLYB", "LEFTPAR", "RIGHTSQUAREB", "RIGHTCURLYB", "RIGHTPAR",
     };
 
-    public Bracket(String string, String type) {
-        super(string, type);
+    public Bracket(String value, String type) {
+        super(value, type);
     }
 
     @Override

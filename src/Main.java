@@ -31,15 +31,18 @@ public class Main {
             System.out.println(token);
         }
 
+        SyntaxException syntaxException = null;
         try {
             new Program().synthesize();
-        } catch (SyntaxException syntaxException) {
-            syntaxException.printStackTrace();
-            System.out.println(syntaxException.toString());
+        } catch (SyntaxException syntaxException_) {
+            syntaxException_.printStackTrace();
+            syntaxException = syntaxException_;
         }
 
         PrintWriter out = new PrintWriter("output.txt");
         out.write(Tree.printTree());
+        if (syntaxException != null)
+            out.write(syntaxException.toString());
         out.close();
 
 
