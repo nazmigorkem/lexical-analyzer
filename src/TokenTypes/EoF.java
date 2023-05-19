@@ -2,7 +2,7 @@ package src.TokenTypes;
 
 public class EoF extends Token {
     public EoF() {
-        super(null, "EoF");
+        super("", "EoF");
     }
 
     @Override

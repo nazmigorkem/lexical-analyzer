@@ -16,7 +16,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         StringBuilder program = new StringBuilder();
         try {
-            File myObj = new File("./src/input.txt");
+            File myObj = new File("./input.txt");
             Scanner myReader = new Scanner(myObj);
             while (myReader.hasNextLine()) {
                 String data = myReader.nextLine();
